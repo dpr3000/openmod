@@ -24,9 +24,11 @@ namespace OpenMod.Analyzers
 
         private static readonly int s_OMLen = "OpenMod".Length;
 
+#pragma warning disable RS2008
         private static readonly DiagnosticDescriptor m_Descriptor
             = new DiagnosticDescriptor(
                 Id,
+#pragma warning restore RS2008
                 title: DefaultTitle,
                 messageFormat: MessageFormat,
                 category: Category,
@@ -53,7 +55,7 @@ namespace OpenMod.Analyzers
                 case MemberAccessExpressionSyntax memberAccessSyntax:
                     {
                         if (context.SemanticModel.GetSymbolInfo(context.Node, context.CancellationToken).Symbol is ISymbol symbol
-                            && !Equals(symbol.ContainingAssembly, context.Compilation.Assembly))
+                            && !SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly, context.Compilation.Assembly))
                         {
                             var containingType = symbol.ContainingType;
 
@@ -78,7 +80,7 @@ namespace OpenMod.Analyzers
                 case ObjectCreationExpressionSyntax creationSyntax:
                     {
                         if (context.SemanticModel.GetSymbolInfo(context.Node, context.CancellationToken).Symbol is ISymbol symbol
-                            && !Equals(symbol.ContainingAssembly, context.Compilation.Assembly))
+                            && !SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly, context.Compilation.Assembly))
                         {
                             var containingType = symbol.ContainingType;
 
@@ -104,7 +106,7 @@ namespace OpenMod.Analyzers
                         var classSymbol = ModelExtensions.GetDeclaredSymbol(context.SemanticModel, declarationSyntax) as INamedTypeSymbol;
                         
                         if (classSymbol?.BaseType is ISymbol symbol
-                            && !Equals(symbol.ContainingAssembly, context.Compilation.Assembly)
+                            && !SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly, context.Compilation.Assembly)
                             && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol))
                             && declarationSyntax.BaseList?.Types.Count > 0)
                         {
