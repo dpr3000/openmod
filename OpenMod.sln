@@ -45,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenMod.Extensions.Economy.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenMod.EntityFrameworkCore", "framework\OpenMod.EntityFrameworkCore\OpenMod.EntityFrameworkCore.csproj", "{F0977F53-9F1F-4B45-896D-961706B010D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenMod.Analyzers", "framework\OpenMod.Analyzers\OpenMod.Analyzers.csproj", "{CCCD5AFF-D258-497F-987F-5905CD81D2C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenMod.Analyzers", "framework\OpenMod.Analyzers\OpenMod.Analyzers.csproj", "{CCCD5AFF-D258-497F-987F-5905CD81D2C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
