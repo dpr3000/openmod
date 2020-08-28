@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using OpenMod.API;
 using OpenMod.API.Ioc;
 using OpenMod.API.Persistence;
 using OpenMod.API.Prioritization;
@@ -10,14 +11,21 @@ using OpenMod.Core.Helpers;
 namespace OpenMod.Core.Commands
 {
     [ServiceImplementation(Priority = Priority.Lowest)]
-    public class CommandDataStore : ICommandDataStore
+    public class CommandDataStore : ICommandDataStore, IDisposable
     {
         public const string CommandsKey = "commands";
         private readonly IDataStore m_DataStore;
+        private readonly IDisposable m_ChangeWatcher;
+        private RegisteredCommandsData m_Cache;
 
-        public CommandDataStore(IOpenModDataStoreAccessor dataStoreAccessor)
+        public CommandDataStore(IOpenModDataStoreAccessor dataStoreAccessor, IRuntime runtime)
         {
             m_DataStore = dataStoreAccessor.DataStore;
+            m_ChangeWatcher = m_DataStore.AddChangeWatcher(CommandsKey, runtime, () =>
+            {
+                m_Cache = null;
+                AsyncHelper.RunSync(GetRegisteredCommandsAsync);
+            });
         }
 
         public async Task<RegisteredCommandData> GetRegisteredCommandAsync(string commandId)
@@ -67,13 +75,13 @@ namespace OpenMod.Core.Commands
                 commandsData.Commands.Add(commandData);
             }
 
-
             await m_DataStore.SaveAsync(CommandsKey, commandsData);
+            m_Cache = commandsData;
         }
 
-        public Task<RegisteredCommandsData> GetRegisteredCommandsAsync()
+        public async Task<RegisteredCommandsData> GetRegisteredCommandsAsync()
         {
-            return m_DataStore.LoadAsync<RegisteredCommandsData>(CommandsKey);
+            return m_Cache ??= await m_DataStore.LoadAsync<RegisteredCommandsData>(CommandsKey);
         }
 
         public async Task<T> GetCommandDataAsync<T>(string commandId, string key)
@@ -102,6 +110,11 @@ namespace OpenMod.Core.Commands
             }
 
             throw new Exception($"Failed to parse {dataObject.GetType()} as {typeof(T)}");
+        }
+
+        public void Dispose()
+        {
+            m_ChangeWatcher?.Dispose();
         }
     }
 }
